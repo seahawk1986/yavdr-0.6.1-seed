@@ -1,0 +1,79 @@
+# Only ask the UTC question if there are other operating systems installed.
+d-i     clock-setup/utc-auto    boolean true
+# Configure APT to not install recommended packages by default. Use of this
+# option can result in an incomplete system and should only be used by very
+# experienced users.
+d-i tasksel/first multiselect 
+d-i     preseed/early_command   string . /usr/share/debconf/confmodule; db_get debconf/priority; case $RET in low|medium) db_fset tasksel/first seen false; echo 'tasksel tasksel/first seen false' >>/var/lib/preseed/log ;; esac
+# Only install basic language packs. Let tasksel ask about tasks.
+d-i     pkgsel/language-pack-patterns   string
+# No language support packages.
+d-i     pkgsel/install-language-support boolean false
+
+d-i pkgsel/update-policy select none
+#d-i pkgsel/install-recommends boolean false
+#d-i pkgsel/upgrade select full-upgrade
+d-i pkgsel/upgrade select none
+d-i pkgsel/updatedb boolean false
+popularity-contest popularity-contest/participate boolean false
+
+# Enable extras.ubuntu.com.
+d-i     apt-setup/extras        boolean true
+
+# yaVDR main PPA
+d-i apt-setup/local0/repository string \
+       deb http://ppa.launchpad.net/yavdr/main/ubuntu trusty main
+d-i apt-setup/local0/comment string yaVDR main
+# Enable deb-src lines
+d-i apt-setup/local0/source boolean true
+# URL to the public key of the local repository
+d-i apt-setup/local0/key string http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x272A2CE18103B360
+
+# yaVDR unstable-vdr PPA
+d-i apt-setup/local1/repository string \
+       deb http://ppa.launchpad.net/yavdr/unstable-vdr/ubuntu trusty main
+d-i apt-setup/local1/comment string yaVDR unstable-vdr
+# Enable deb-src lines
+d-i apt-setup/local1/source boolean true
+# URL to the public key of the local repository
+d-i apt-setup/local1/key string http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x272A2CE18103B360
+
+# yaVDR unstable-yavdr PPA
+d-i apt-setup/local2/repository string \
+       deb http://ppa.launchpad.net/yavdr/unstable-yavdr/ubuntu trusty main
+d-i apt-setup/local2/comment string yaVDR unstable-yavdr
+# Enable deb-src lines
+d-i apt-setup/local2/source boolean true
+# URL to the public key of the local repository
+d-i apt-setup/local2/key string http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x272A2CE18103B360
+
+# yaVDR unstable-xbmc PPA
+d-i apt-setup/local3/repository string \
+       deb http://ppa.launchpad.net/yavdr/unstable-xbmc/ubuntu trusty main
+d-i apt-setup/local3/comment string yaVDR unstable-xbmc
+# Enable deb-src lines
+d-i apt-setup/local3/source boolean true
+# URL to the public key of the local repository
+d-i apt-setup/local3/key string http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x272A2CE18103B360
+
+# yaVDR main PPA
+d-i apt-setup/local4/repository string \
+       deb http://ppa.launchpad.net/yavdr/unstable-main/ubuntu trusty main
+d-i apt-setup/local4/comment string yaVDR unstable-main
+# Enable deb-src lines
+d-i apt-setup/local4/source boolean true
+# URL to the public key of the local repository
+d-i apt-setup/local4/key string http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x272A2CE18103B360
+
+d-i pkgsel/include string yavdr-essential devscripts build-essential vim man mlocate cifs-utils samba samba-common samba-common-bin smbclient ntfs-3g v86d python-software-properties lsb-invalid-mta nvidia-current
+
+d-i lirc/remote select Custom
+d-i lirc/transmitter select None
+
+user-setup-udeb user-setup/encrypt-home boolean false
+
+# The user account will be added to some standard initial groups. To
+# override that, use this.
+d-i passwd/user-default-groups string audio cdrom video adm
+# postinstall
+d-i preseed/late_command string in-target yavdr-post-install; sed -i '/yavdr/d' /target/etc/apt/sources.list; sed -i '/yaVDR/d' /target/etc/apt/sources.list;
